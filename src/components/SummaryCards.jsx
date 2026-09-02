@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { formatMoney } from "../lib/money.js";
 import { totalSpent } from "../lib/balances.js";
 
-export default function SummaryCards({ members, expenses, onAddMember }) {
+export default function SummaryCards({ members, expenses, onAddMember, onDeleteMember }) {
   const [name, setName] = useState("");
 
   const perPerson = useMemo(() => {
@@ -12,9 +12,24 @@ export default function SummaryCards({ members, expenses, onAddMember }) {
         .reduce((s, e) => s + Number(e.amount), 0);
       return { id: m.id, name: m.name, paid };
     });
-  }, [expenses]);
+  }, [expenses, members]);
 
   const spent = totalSpent(expenses);
+
+  function handleRemove(id) {
+    const isTied = expenses.some((e) => {
+      if (e.paidBy === id) return true;
+      if (e.splitWith && e.splitWith.includes(id)) return true;
+      if (e.percents && Object.keys(e.percents).includes(String(id))) return true;
+      return false;
+    });
+
+    if (isTied) {
+      alert("Cannot remove this member because they are tied to an active expense.");
+      return;
+    }
+    onDeleteMember(id);
+  }
 
   return (
     <section className="card">
@@ -40,9 +55,18 @@ export default function SummaryCards({ members, expenses, onAddMember }) {
       <div style={{ marginTop: 12 }}>
         <div className="legend">Paid so far</div>
         {perPerson.map((p) => (
-          <div className="person-stat" key={p.id}>
-            <span>{p.name}</span>
-            <span>{formatMoney(p.paid)}</span>
+          <div className="person-stat" key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <span>{p.name}</span>
+              <span style={{ marginLeft: 8 }}>{formatMoney(p.paid)}</span>
+            </div>
+            <button
+              className="btn small ghost"
+              type="button"
+              onClick={() => handleRemove(p.id)}
+            >
+              Remove
+            </button>
           </div>
         ))}
       </div>
@@ -52,6 +76,12 @@ export default function SummaryCards({ members, expenses, onAddMember }) {
           e.preventDefault();
           const trimmed = name.trim();
           if (!trimmed) return;
+          
+          if (members.some(m => m.name.toLowerCase() === trimmed.toLowerCase())) {
+            alert("A member with this name already exists.");
+            return;
+          }
+
           onAddMember(trimmed);
           setName("");
         }}

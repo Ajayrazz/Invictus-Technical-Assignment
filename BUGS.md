@@ -105,3 +105,42 @@ Add one section per issue. Bug 1 is filled in to show the format — fix it, the
 - In `src/components/SettleUpPanel.jsx`, I added a "Mark as settled" button to each transfer suggestion that calls an `onSettle(transfer)` callback.
 - In `src/App.jsx`, I passed the `onSettle` callback to dynamically trigger `addExpense`, creating a native "Settlement" expense behind the scenes that mathematically zeroes out the debt (Debtor pays Creditor 100% of the owed amount).
 - In `src/components/AddExpenseForm.jsx`, I appended `"Settlement"` to the `CATEGORIES` array so these native transactions match the app's standard structure.
+
+---
+
+## Bug 9
+
+**How to reproduce:** In the "Summary" panel, type a name that already exists in the app (e.g., "Ajay") and click "Add". A second member with the exact same name will be created.
+
+**How it was identified:** While reviewing the member creation logic in `SummaryCards.jsx`, I noticed there was no validation preventing identical names. This would completely break the settlement UI, as users wouldn't know which "Ajay" owes which "Ajay."
+
+**What is wrong:** The `onSubmit` handler in `SummaryCards.jsx` dispatched `ADD_MEMBER` immediately after confirming the input wasn't empty, ignoring whether the name already existed.
+
+**What I changed:** I added a case-insensitive validation check inside the `onSubmit` handler: `members.some(m => m.name.toLowerCase() === trimmed.toLowerCase())`. If it finds a match, it displays an alert and blocks the submission.
+
+---
+
+## Bug 10
+
+**How to reproduce:** Make a typo when adding a member. Notice that there is no way to remove or edit that member; they are permanently stuck in the app.
+
+**How it was identified:** `SummaryCards.jsx` lacked any UI or state management logic for deleting members.
+
+**What is wrong:** The app simply didn't have a `DELETE_MEMBER` action in its reducer, nor did the UI expose a way to trigger it. Additionally, deleting a member without checking if they are tied to an active expense would instantly crash the app.
+
+**What I changed:**
+- In `store.js`, I added a `DELETE_MEMBER` case to the reducer to filter out the member by ID.
+- In `SummaryCards.jsx`, I added a "Remove" button next to each member.
+- Inside `handleRemove`, I added a validation check that scans `expenses` to see if the user is a `paidBy` payer, in the `splitWith` array, or in the `percents` object. If they are, it blocks deletion with an alert. If not, it safely dispatches the deletion.
+
+---
+
+## Bug 11
+
+**How to reproduce:** Create an expense with an incredibly long description that contains no spaces (e.g. `HotelBookingNumber12345678901234567890`). The text overflows the screen and breaks the layout.
+
+**How it was identified:** During CSS and UI stress testing, long unbroken strings broke the flexbox boundaries of `.expense-title`.
+
+**What is wrong:** The `.expense-title` class in `index.css` lacked wrapping rules for unbreakable words.
+
+**What I changed:** In `src/index.css`, I added `word-break: break-word;` to the `.expense-title` block, ensuring long strings gracefully wrap to the next line without overflowing the container.

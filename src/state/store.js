@@ -53,9 +53,18 @@ export function reducer(state, action) {
       );
       return { ...state, expenses: next };
     }
-    case "ADD_MEMBER": {
-      return { ...state, members: [...state.members, action.member] };
-    }
+    case "ADD_MEMBER":
+      return {
+        ...state,
+        members: [...state.members, action.member],
+      };
+
+    case "DELETE_MEMBER":
+      return {
+        ...state,
+        members: state.members.filter((m) => m.id !== action.id),
+      };
+
     default:
       return state;
   }

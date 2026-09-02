@@ -218,6 +218,7 @@ select:focus {
 
 .expense-title {
   font-weight: 700;
+  word-break: break-word;
 }
 
 .expense-meta {
