@@ -59,6 +59,14 @@ export function reducer(state, action) {
         members: [...state.members, action.member],
       };
 
+    case "UPDATE_MEMBER":
+      return {
+        ...state,
+        members: state.members.map((m) =>
+          m.id === action.id ? { ...m, name: action.name } : m
+        ),
+      };
+
     case "DELETE_MEMBER":
       return {
         ...state,

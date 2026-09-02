@@ -129,8 +129,9 @@ Add one section per issue. Bug 1 is filled in to show the format — fix it, the
 **What is wrong:** The app simply didn't have a `DELETE_MEMBER` action in its reducer, nor did the UI expose a way to trigger it. Additionally, deleting a member without checking if they are tied to an active expense would instantly crash the app.
 
 **What I changed:**
-- In `store.js`, I added a `DELETE_MEMBER` case to the reducer to filter out the member by ID.
-- In `SummaryCards.jsx`, I added a "Remove" button next to each member.
+- In `store.js`, I added a `DELETE_MEMBER` case to the reducer to filter out the member by ID, and an `UPDATE_MEMBER` case to edit their name.
+- In `SummaryCards.jsx`, I added both a "Remove" and "Edit" button next to each member.
+- Clicking "Edit" replaces the row with an inline input field, allowing the user to seamlessly correct a typo. It includes duplicate name validation to ensure they don't rename themselves to an existing member.
 - Inside `handleRemove`, I added a validation check that scans `expenses` to see if the user is a `paidBy` payer, in the `splitWith` array, or in the `percents` object. If they are, it blocks deletion with an alert. If not, it safely dispatches the deletion.
 
 ---

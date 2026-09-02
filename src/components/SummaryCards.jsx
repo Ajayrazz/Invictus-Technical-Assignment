@@ -2,8 +2,10 @@ import { useMemo, useState } from "react";
 import { formatMoney } from "../lib/money.js";
 import { totalSpent } from "../lib/balances.js";
 
-export default function SummaryCards({ members, expenses, onAddMember, onDeleteMember }) {
+export default function SummaryCards({ members, expenses, onAddMember, onUpdateMember, onDeleteMember }) {
   const [name, setName] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState("");
 
   const perPerson = useMemo(() => {
     return members.map((m) => {
@@ -31,6 +33,24 @@ export default function SummaryCards({ members, expenses, onAddMember, onDeleteM
     onDeleteMember(id);
   }
 
+  function handleSaveEdit(id) {
+    const trimmed = editName.trim();
+    if (!trimmed) {
+      setEditingId(null);
+      return;
+    }
+    if (
+      members.some(
+        (m) => m.id !== id && m.name.toLowerCase() === trimmed.toLowerCase()
+      )
+    ) {
+      alert("A member with this name already exists.");
+      return;
+    }
+    onUpdateMember(id, trimmed);
+    setEditingId(null);
+  }
+
   return (
     <section className="card">
       <h2>Summary</h2>
@@ -56,17 +76,53 @@ export default function SummaryCards({ members, expenses, onAddMember, onDeleteM
         <div className="legend">Paid so far</div>
         {perPerson.map((p) => (
           <div className="person-stat" key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <span>{p.name}</span>
-              <span style={{ marginLeft: 8 }}>{formatMoney(p.paid)}</span>
-            </div>
-            <button
-              className="btn small ghost"
-              type="button"
-              onClick={() => handleRemove(p.id)}
-            >
-              Remove
-            </button>
+            {editingId === p.id ? (
+              <div style={{ display: "flex", gap: "8px", flex: 1, marginRight: "8px" }}>
+                <input
+                  autoFocus
+                  style={{ flex: 1, padding: "4px" }}
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSaveEdit(p.id);
+                    if (e.key === "Escape") setEditingId(null);
+                  }}
+                />
+                <button
+                  className="btn small ghost"
+                  onClick={() => handleSaveEdit(p.id)}
+                >
+                  Save
+                </button>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <span>{p.name}</span>
+                  <span style={{ marginLeft: 8 }}>{formatMoney(p.paid)}</span>
+                </div>
+                <div>
+                  <button
+                    className="btn small ghost"
+                    style={{ marginRight: 6 }}
+                    type="button"
+                    onClick={() => {
+                      setEditingId(p.id);
+                      setEditName(p.name);
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn small ghost"
+                    type="button"
+                    onClick={() => handleRemove(p.id)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         ))}
       </div>

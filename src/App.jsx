@@ -104,6 +104,7 @@ export default function App() {
             members={state.members}
             expenses={state.expenses}
             onAddMember={addMember}
+            onUpdateMember={(id, name) => dispatch({ type: "UPDATE_MEMBER", id, name })}
             onDeleteMember={(id) => dispatch({ type: "DELETE_MEMBER", id })}
           />
           <BalancesPanel members={state.members} balances={balances} />
