@@ -9,21 +9,37 @@ export function splitEqual(amount, ids) {
   const n = ids.length || 1;
   const share = Number((amount / n).toFixed(2));
   const shares = {};
-  for (const id of ids) {
-    shares[id] = share;
+  let total = 0;
+  for (let i = 0; i < ids.length; i++) {
+    const id = ids[i];
+    if (i === ids.length - 1) {
+      shares[id] = Number((amount - total).toFixed(2));
+    } else {
+      shares[id] = share;
+      total += share;
+    }
   }
   return shares;
 }
 
 export function percentsSumTo100(percents) {
   const values = Object.values(percents).map(Number);
-  return values.reduce((a, b) => a + b, 0) === 100;
+  return Math.abs(values.reduce((a, b) => a + b, 0) - 100) < 0.001;
 }
 
 export function splitByPercent(amount, percents) {
   const shares = {};
-  for (const [id, pct] of Object.entries(percents)) {
-    shares[id] = Number(((amount * Number(pct)) / 100).toFixed(2));
+  let total = 0;
+  const entries = Object.entries(percents);
+  for (let i = 0; i < entries.length; i++) {
+    const [id, pct] = entries[i];
+    if (i === entries.length - 1) {
+      shares[id] = Number((amount - total).toFixed(2));
+    } else {
+      const share = Number(((amount * Number(pct)) / 100).toFixed(2));
+      shares[id] = share;
+      total += share;
+    }
   }
   return shares;
 }

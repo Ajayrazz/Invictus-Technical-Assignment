@@ -1,6 +1,6 @@
 import { formatMoney } from "../lib/money.js";
 
-export default function SettleUpPanel({ transfers }) {
+export default function SettleUpPanel({ transfers, onSettle }) {
   return (
     <section className="card">
       <h2>Settle up</h2>
@@ -9,8 +9,17 @@ export default function SettleUpPanel({ transfers }) {
       ) : (
         transfers.map((t, i) => (
           <div className="transfer" key={`${t.from}-${t.to}-${i}`}>
-            <strong>{t.fromName}</strong> pays <strong>{t.toName}</strong>{" "}
-            {formatMoney(t.amount)}
+            <div>
+              <strong>{t.fromName}</strong> pays <strong>{t.toName}</strong>{" "}
+              {formatMoney(t.amount)}
+            </div>
+            <button
+              className="btn small"
+              type="button"
+              onClick={() => onSettle(t)}
+            >
+              Mark as settled
+            </button>
           </div>
         ))
       )}

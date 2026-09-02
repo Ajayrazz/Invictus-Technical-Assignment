@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { percentsSumTo100 } from "../lib/money.js";
 
-const CATEGORIES = ["Food", "Travel", "Fun", "Stay"];
+const CATEGORIES = ["Food", "Travel", "Fun", "Stay", "Settlement"];
 
 function evenPercents(ids) {
   if (!ids.length) return {};
