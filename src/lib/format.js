@@ -4,6 +4,7 @@ export function formatDate(date) {
       day: "numeric",
       month: "short",
       year: "numeric",
+      timeZone: "UTC",
     });
   }
   if (typeof date === "string") {

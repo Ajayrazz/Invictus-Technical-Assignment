@@ -4,8 +4,8 @@ This document serves as a comprehensive review of the FairShare application. It 
 
 ---
 
-## 1. Resolved Bugs (The "Critical 11")
-We have already tracked down and resolved the following 11 application-breaking bugs, which are fully documented in `BUGS.md`:
+## 1. Resolved Bugs (The "Critical 12")
+We have already tracked down and resolved the following 12 application-breaking bugs, which are fully documented in `BUGS.md`:
 
 1. **Sorting & Hydration Failure:** The expense list was sorted oldest-first. Additionally, `Date` objects were parsed from `localStorage` as strings, breaking the sorting math (`b.date - a.date`) upon page reload.
 2. **Destructive Mutation by Index:** When the expense list was filtered, editing or deleting an item used the *filtered array's index* instead of a unique ID, resulting in the wrong expense being permanently deleted or mutated in the global state.
@@ -18,6 +18,7 @@ We have already tracked down and resolved the following 11 application-breaking 
 9. **Duplicate Member Names:** There was no validation preventing users from adding multiple members with the exact same name, breaking the settlement UI.
 10. **Ghost Members (Deletion):** Added the ability to safely remove members, protected by a cascading validation check to ensure they aren't tied to active expenses.
 11. **UI Overflow on Long Descriptions:** Forced long unbreakable strings (like IDs or URLs) in expense titles to wrap gracefully instead of overflowing the flexbox layout.
+12. **Timezone Skew:** Expenses that were created with exact dates ("YYYY-MM-DD") were shifting backwards by a day for users in timezones behind UTC. We resolved this by forcing `toLocaleDateString` to render strictly in UTC.
 
 ---
 
@@ -41,4 +42,3 @@ If we continue developing FairShare, these are the most immediate bugs and edge 
 
 - [ ] **Local Storage Quota Limits:** As users add thousands of expenses over years, `localStorage` will eventually hit its 5MB size limit. The app will crash if `localStorage.setItem` throws a `QuotaExceededError`. This needs a `try/catch` wrapper with a grace-degradation warning to the user.
 - [ ] **Negative Settlements:** If an expense is accidentally added with a massive amount that breaks someone's balance into extreme negatives, the `settle.js` logic might generate circular debt loops.
-- [ ] **Timezone Skew:** Expenses currently use the local browser timezone when saving dates. If User A travels to Europe and adds an expense, and User B opens it in the USA, the date could shift backwards by a day depending on the UTC offset. Dates should be stored and displayed in strict UTC strings.

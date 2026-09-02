@@ -145,3 +145,17 @@ Add one section per issue. Bug 1 is filled in to show the format — fix it, the
 **What is wrong:** The `.expense-title` class in `index.css` lacked wrapping rules for unbreakable words.
 
 **What I changed:** In `src/index.css`, I added `word-break: break-word;` to the `.expense-title` block, ensuring long strings gracefully wrap to the next line without overflowing the container.
+
+---
+
+## Bug 12
+
+**How to reproduce:** Enter an expense with the date "16 March 2026". Load the application in a time zone behind UTC (e.g., EST / UTC-5). Notice that the date mysteriously renders as "15 March 2026" (a day early).
+
+**How it was identified:** The app stores dates as strings like `"YYYY-MM-DD"`. JavaScript's `new Date("YYYY-MM-DD")` constructor parses this as UTC midnight. However, `toLocaleDateString()` defaults to formatting the output using the user's *local* browser timezone, pulling the midnight time backward by a few hours and shifting it into the previous day.
+
+**What is wrong:** The formatting function in `format.js` didn't specify a target timezone, falling back to local time and causing a drift for exact date values.
+
+**What I changed:**
+- In `src/lib/format.js`, I added `timeZone: "UTC"` to the `toLocaleDateString` options, forcing the UI to display the exact UTC date that was parsed.
+- In `src/App.jsx`, I updated the native Settlement transaction to generate its timestamp using `Date.UTC()` to ensure it stays completely synchronized with this format!

@@ -117,7 +117,10 @@ export default function App() {
                 paidBy: t.from,
                 splitType: "equal",
                 splitWith: [t.to],
-                date: new Date(),
+                date: (() => {
+                  const d = new Date();
+                  return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+                })(),
                 category: "Settlement",
               });
             }}
